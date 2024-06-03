@@ -77,7 +77,7 @@ services:
       - ./steeleagle-vol:/usr/local/apache2/htdocs
 
   openscout-face-engine:
-    image: cmusatyalab/openscout:${OPENSCOUT_TAG}
+    image: xianglic/openscout:${OPENSCOUT_TAG}
     container_name: openscout-face-engine
     restart: unless-stopped
     privileged: true
@@ -108,7 +108,7 @@ services:
       - WEBSERVER=${WEBSERVER_URL}:${HTTP_PORT}
 
   obstacle-engine:
-    image: cmusatyalab/openscout:${OPENSCOUT_TAG}
+    image: xianglic/openscout:${OPENSCOUT_TAG}
     container_name: obstacle-engine
     restart: unless-stopped
     privileged: true
@@ -135,7 +135,7 @@ services:
     #  - CUDA_VISIBLE_DEVICES=1 #set this if you want to force CPU only
 
   openscout-object-engine:
-    image: cmusatyalab/openscout:${OPENSCOUT_TAG}
+    image: xianglic/openscout:${OPENSCOUT_TAG}
     container_name: openscout-object-engine
     restart: unless-stopped
     privileged: true
@@ -235,6 +235,7 @@ networks:
       driver: default
       config:
         - subnet: 11.11.0.0/24
+    
   redis:
 volumes:
   training-vol:
