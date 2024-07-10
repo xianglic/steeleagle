@@ -1,6 +1,6 @@
 import argparse
 import asyncio
-from onboard.python.ros.supervisor import Supervisor
+from onboard.python.ros.src.steeleagle_mission_control.steeleagle_mission_control.supervisor import Supervisor
 from rclpy.node import Node
 import rclpy
 
