@@ -20,6 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'hypervisor = steeleagle_mission_control.hypervisor:main'
         ],
     },
 )

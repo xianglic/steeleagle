@@ -1,0 +1,3 @@
+[console_scripts]
+hypervisor = steeleagle_mission_control.hypervisor:main
+

@@ -1,0 +1,6 @@
+source;share/steeleagle_mission_control/hook/pythonpath.ps1
+source;share/steeleagle_mission_control/hook/pythonpath.dsv
+source;share/steeleagle_mission_control/hook/pythonpath.sh
+source;share/steeleagle_mission_control/hook/ament_prefix_path.ps1
+source;share/steeleagle_mission_control/hook/ament_prefix_path.dsv
+source;share/steeleagle_mission_control/hook/ament_prefix_path.sh
