@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'steeleagle_mission_control'
+package_name = 'steeleagle_mission'
 
 setup(
     name=package_name,
@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'hypervisor = steeleagle_mission_control.hypervisor:main'
+            'hypervisor = steeleagle_mission.hypervisor:main',
+            'supervisor = steeleagle_mission.supervisor:main'
         ],
     },
 )
