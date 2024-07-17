@@ -209,14 +209,17 @@ class Supervisor(Node):
         self.get_logger().info('Flight script download starting...')
         try:
             colcon_prefix_path = os.getenv('COLCON_PREFIX_PATH')
-            ros_ws_directory = os.path.abspath(os.path.join(colcon_prefix_path, '..', '..'))
+            ros_ws_directory = os.path.abspath(os.path.join(colcon_prefix_path, '..'))
             download_path = os.path.join(ros_ws_directory, 'download')
+            os.makedirs(download_path, exist_ok=True)
             self.download(url, download_path)
+            self.get_logger().info('Flight script downloaded...')
             self.add_directory_to_sys_path(download_path)
+            self.get_logger().info('Flight script path added...')
         except Exception as e:
             self.get_logger().info('Flight script download failed! Aborting.')
             return
-        self.get_logger().info('Flight script downloaded...')
+        
         self.start_mission()
         
     def start_mission(self):
@@ -251,8 +254,11 @@ class Supervisor(Node):
             self.get_logger().info('Flight script stopped!')
     
     def add_directory_to_sys_path(directory):
-        if directory not in sys.path:
-            sys.path.append(directory)
+        try:
+            if directory not in sys.path:
+                sys.path.append(directory)
+        except Exception as e:
+            print(e)
 
     def download(self, url: str, download_path):
         #download zipfile and extract reqs/flight script from cloudlet
@@ -266,24 +272,27 @@ class Supervisor(Node):
                 for chunk in r.iter_content(chunk_size=8192):
                     f.write(chunk)
             
-            z = ZipFile(filename)
+            z = ZipFile(save_path)
             try:
-                subprocess.check_call(['rm', '-rf', './task_defs', './mission', './transition_defs'])
+                flight_plan_path = os.path.join(download_path, 'flight_plan')
+                subprocess.check_call(['rm', '-rf', flight_plan_path])
             except subprocess.CalledProcessError as e:
                 self.get_logger().info(f"Error removing old task/transition defs: {e}")
-            z.extractall()
-            self.install_prereqs()
+            z.extractall(download_path)
+            prereq_path = os.path.join(download_path, 'flight_plan')
+            self.install_prereqs(prereq_path)
+            
         except Exception as e:
             print(e)
 
-    def install_prereqs(self) -> bool:
+    def install_prereqs(self, prereq_path) -> bool:
         ret = False
         # Pip install prerequsites for flight script
+        self.get_logger().info('Installing prerequisites...')
         try:
-            subprocess.check_call(['python3', '-m', 'pip', 'install', '-r', './requirements.txt'])
-            ret = True
+            subprocess.check_call(['python3', '-m', 'pip', 'install', '-r', 'requirements.txt'], cwd=prereq_path)
         except subprocess.CalledProcessError as e:
-            self.get_logger().info(f"Error pip installing requirements.txt: {e}")
+            self.get_logger().error(f'Error installing prerequisites: {e}')
         return ret
 
 

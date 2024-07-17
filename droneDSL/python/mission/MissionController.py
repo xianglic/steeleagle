@@ -1,4 +1,5 @@
 import asyncio
+import threading
 from  interfaces.Task import TaskType      
 from task_defs.TrackTask import TrackTask
 from task_defs.DetectTask import DetectTask
@@ -12,7 +13,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
     
-class MissionController():
+class MissionController(threading.Thread):
         
     def __init__(self, drone, cloudlet):
         super().__init__()
@@ -24,6 +25,7 @@ class MissionController():
         self.transitMap = {}
         self.transitMap["default"]= MissionCreator.default_transit
         self.task_arg_map = {}
+        self._stop_event = threading.Event()
 
     ######################################################## TASK #############################################################
     def create_task(self, task_id):
@@ -71,7 +73,7 @@ class MissionController():
             tr.push_task(start_task)
             
        
-    async def transit_to(self, task, tr):
+    def transit_to(self, task, tr):
         logger.info(f"MC: transit to task with task_id: {task.task_id}, current_task_id: {self.curr_task_id}")
         tr.stop_task()
         tr.push_task(task)
@@ -82,7 +84,7 @@ class MissionController():
     
     ######################################################## CONTROL ############################################################
      
-    async def run(self):
+    async def async_main(self):
         try:
             # start the mc
             logger.info("MissionController: hi start the controller\n")
@@ -102,7 +104,7 @@ class MissionController():
             logger.info("MissionController: go to the inf loop routine\n")
             # main logic check the triggered event
         
-            while True:
+            while not self._stop_event.is_set():
                 # logger.info('[MC] HI tttt')
                 
                 if (not self.trigger_event_queue.empty()):
@@ -119,7 +121,7 @@ class MissionController():
                         else:
                             next_task = self.create_task(next_task_id)
                             logger.info(f"MissionController: task created  taskid {str(next_task.task_id)} \n")
-                            await self.transit_to(next_task, tr)
+                            self.transit_to(next_task, tr)
                             
                 await asyncio.sleep(0.1)            
 
@@ -136,7 +138,11 @@ class MissionController():
             logger.info("MissionController: terminate the controller\n")
 
 
-
+    def run(self):
+        asyncio.run(self.async_main())
+    
+    def stop(self):
+        self._stop_event.set()
 
 
 

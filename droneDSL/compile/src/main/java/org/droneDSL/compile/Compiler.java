@@ -94,17 +94,21 @@ public class Compiler implements Runnable {
       ZipOutputStream zos = new ZipOutputStream(fos);
 
       // add a directory's files to the zip
-      addToZipFile(platformPath + "/task_defs", "./task_defs", zos);
-      addToZipFile(platformPath + "/mission", "./mission", zos);
-      addToZipFile(platformPath + "/transition_defs", "./transition_defs", zos);
+      addToZipFile(platformPath + "/task_defs", "./flight_plan/task_defs", zos);
+      addToZipFile(platformPath + "/mission", "./flight_plan/mission", zos);
+      addToZipFile(platformPath + "/transition_defs", "./flight_plan/transition_defs", zos);
 
       // add build file to the zip
       Path buildFile = Paths.get(String.format("./%s/requirements.txt", platform));
-      zos.putNextEntry(new ZipEntry("requirements.txt"));
+      zos.putNextEntry(new ZipEntry("./flight_plan/requirements.txt"));
       Files.copy(buildFile, zos);
-      zos.closeEntry();
-      
 
+      // add init.py
+      Path initFile = Paths.get(String.format("./%s/__init__.py", platform));
+      zos.putNextEntry(new ZipEntry("./flight_plan/__init__.py"));
+      Files.copy(initFile, zos);
+
+      zos.closeEntry();
       zos.close();
       fos.close();
     } catch (IOException e) {
