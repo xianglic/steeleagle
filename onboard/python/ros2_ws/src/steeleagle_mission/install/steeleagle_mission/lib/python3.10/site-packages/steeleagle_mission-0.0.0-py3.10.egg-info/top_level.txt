@@ -1,4 +1,0 @@
-cnc_protocol
-implementation
-interfaces
-steeleagle_mission

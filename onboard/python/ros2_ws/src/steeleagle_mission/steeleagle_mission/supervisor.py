@@ -1,4 +1,5 @@
 import asyncio
+import os
 import nest_asyncio
 nest_asyncio.apply()
 import importlib
@@ -205,9 +206,13 @@ class Supervisor(Node):
     MISSION CONTROL
     '''
     async def executeFlightScript(self, url: str):
-        self.get_logger().info('Starting flight plan download...')
+        self.get_logger().info('Flight script download starting...')
         try:
-            self.download(url)
+            colcon_prefix_path = os.getenv('COLCON_PREFIX_PATH')
+            ros_ws_directory = os.path.abspath(os.path.join(colcon_prefix_path, '..', '..'))
+            download_path = os.path.join(ros_ws_directory, 'download')
+            self.download(url, download_path)
+            self.add_directory_to_sys_path(download_path)
         except Exception as e:
             self.get_logger().info('Flight script download failed! Aborting.')
             return
@@ -215,44 +220,52 @@ class Supervisor(Node):
         self.start_mission()
         
     def start_mission(self):
-        self.get_logger().info('Start mission supervisor')
+        self.get_logger().info('Flight script starting...')
         # Stop existing mission (if there is one)
         self.stop_mission()
         # Start new task
-        self.get_logger().info('MS import')
+        self.get_logger().info('Flight script importing...')
         if not self.reload:
-            import mission
-            import task_defs
-            import transition_defs
+            from flight_plan import mission
+            from flight_plan import task_defs
+            from flight_plan import transition_defs
         else:
-            self.get_logger.info('Reloading...')
+            self.get_logger.info('Flight script reloading...')
             modules = sys.modules.copy()
             for module in modules.values():
                 if module.__name__.startswith('mission') or module.__name__.startswith('task_defs') or module.__name__.startswith('transition_defs'):
                     importlib.reload(module)
-        self.get_logger().info('MC init')
-        from mission.MissionController import MissionController
+        self.get_logger().info('Flight script initializing...')
+        from flight_plan.mission.MissionController import MissionController
         self.mission = MissionController(self.drone, self.cloudlet)
-        self.get_logger().info('Running flight script!')
+        self.get_logger().info('Flight script running!')
         self.mission.start()
         self.reload = True
 
     def stop_mission(self):
         if self.mission and self.mission.is_alive():
-            self.get_logger().info('Mission script stop signalled')
+            self.get_logger().info('Flight script stopping...')
             self.mission.stop()
             self.mission.join()
             self.mission = None
+            self.get_logger().info('Flight script stopped!')
+    
+    def add_directory_to_sys_path(directory):
+        if directory not in sys.path:
+            sys.path.append(directory)
 
-    def download(self, url: str):
+    def download(self, url: str, download_path):
         #download zipfile and extract reqs/flight script from cloudlet
         try:
             filename = url.rsplit(sep='/')[-1]
-            self.get_logger().info(f'Writing {filename} to disk...')
+            save_path = os.path.join(download_path, filename)
+            self.get_logger().info(f'Writing {filename} to {save_path}...')
+            
             r = requests.get(url, stream=True)
-            with open(filename, mode='wb') as f:
-                for chunk in r.iter_content():
+            with open(save_path, mode='wb') as f:
+                for chunk in r.iter_content(chunk_size=8192):
                     f.write(chunk)
+            
             z = ZipFile(filename)
             try:
                 subprocess.check_call(['rm', '-rf', './task_defs', './mission', './transition_defs'])
