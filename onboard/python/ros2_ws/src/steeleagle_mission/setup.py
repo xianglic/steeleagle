@@ -10,7 +10,7 @@ def package_files(directory):
             paths.append(os.path.join(path, filename))
     return paths
 
-cnc_protocol_dir = os.path.join(package_name, 'cnc_protocol')
+cnc_protocol_dir = os.path.join('cnc_protocol')
 cnc_protocol_files = package_files(cnc_protocol_dir)
 
 setup(
@@ -21,22 +21,22 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('lib/' + package_name + '/implementation/cloudlets', [
-            os.path.join(package_name, 'implementation', 'cloudlets', 'PartialOffloadCloudlet.py'),
-            os.path.join(package_name, 'implementation', 'cloudlets', 'PureOffloadCloudlet.py'),
-        ]),
-        ('lib/' + package_name + '/implementation/drones', [
-            os.path.join(package_name, 'implementation', 'drones', 'MavlinkDrone.py'),
-            os.path.join(package_name, 'implementation', 'drones', 'ModalAISeekerDrone.py'),
-            os.path.join(package_name, 'implementation', 'drones', 'ParrotAnafiDrone.py'),
-        ]),
-        ('lib/' + package_name + '/interfaces', [
-            os.path.join(package_name, 'interfaces', 'CloudletItf.py'),
-            os.path.join(package_name, 'interfaces', 'DroneItf.py'),
-            os.path.join(package_name, 'interfaces', 'Task.py'),
-            os.path.join(package_name, 'interfaces', 'Transition.py'),
-        ]),
-        ('lib/' + package_name + '/cnc_protocol', cnc_protocol_files),
+        # ('lib/' + package_name + '/implementation/cloudlets', [
+        #     os.path.join('implementation', 'cloudlets', 'PartialOffloadCloudlet.py'),
+        #     os.path.join('implementation', 'cloudlets', 'PureOffloadCloudlet.py'),
+        # ]),
+        # ('lib/' + package_name + '/implementation/drones', [
+        #     os.path.join('implementation', 'drones', 'MavlinkDrone.py'),
+        #     os.path.join('implementation', 'drones', 'ModalAISeekerDrone.py'),
+        #     os.path.join('implementation', 'drones', 'ParrotAnafiDrone.py'),
+        # ]),
+        # ('lib/' + package_name + '/interfaces', [
+        #     os.path.join(package_name, 'interfaces', 'CloudletItf.py'),
+        #     os.path.join(package_name, 'interfaces', 'DroneItf.py'),
+        #     os.path.join(package_name, 'interfaces', 'Task.py'),
+        #     os.path.join(package_name, 'interfaces', 'Transition.py'),
+        # ]),
+        # ('lib/' + package_name + '/cnc_protocol', cnc_protocol_files),
         
     ],
     install_requires=[

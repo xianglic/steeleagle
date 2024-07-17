@@ -1,0 +1,4 @@
+[console_scripts]
+hypervisor = steeleagle_mission.hypervisor:main
+supervisor = steeleagle_mission.supervisor:main
+
