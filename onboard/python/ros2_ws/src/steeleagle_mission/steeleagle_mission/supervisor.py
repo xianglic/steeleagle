@@ -94,7 +94,6 @@ class Supervisor(Node):
         await self.drone.startStreaming()
         self.cloudlet.startStreaming(self.drone, 'coco', 30)
         
-
     async def commandHandler(self):
         name = await self.drone.getName()
 
@@ -200,7 +199,6 @@ class Supervisor(Node):
             #process result from telemetry engine
             pass
 
-    
     '''
     MISSION CONTROL
     '''
@@ -294,8 +292,6 @@ class Supervisor(Node):
         except subprocess.CalledProcessError as e:
             self.get_logger().error(f'Error installing prerequisites: {e}')
         return ret
-
-
 
 '''
 MAIN LOOP
