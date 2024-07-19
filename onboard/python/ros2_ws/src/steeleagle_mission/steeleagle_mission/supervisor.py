@@ -214,7 +214,7 @@ class Supervisor(Node):
             os.makedirs(download_path, exist_ok=True)
             self.download(url, download_path)
             self.get_logger().info('Flight script downloaded...')
-            self.add_directory_to_sys_path(download_path)
+            self.add_directory_to_sys_path(os.path.join(download_path, 'flight_plan'))
             self.get_logger().info('Flight script path added...')
         except Exception as e:
             self.get_logger().info('Flight script download failed! Aborting.')
@@ -229,17 +229,18 @@ class Supervisor(Node):
         # Start new task
         self.get_logger().info('Flight script importing...')
         if not self.reload:
-            from flight_plan import mission
-            from flight_plan import task_defs
-            from flight_plan import transition_defs
+            import mission
+            import task_defs
+            import transition_defs
+            
         else:
-            self.get_logger.info('Flight script reloading...')
+            self.get_logger().info('Flight script reloading...')
             modules = sys.modules.copy()
             for module in modules.values():
                 if module.__name__.startswith('mission') or module.__name__.startswith('task_defs') or module.__name__.startswith('transition_defs'):
                     importlib.reload(module)
         self.get_logger().info('Flight script initializing...')
-        from flight_plan.mission.MissionController import MissionController
+        from mission.MissionController import MissionController
         self.mission = MissionController(self.drone, self.cloudlet)
         self.get_logger().info('Flight script running!')
         self.mission.start()
@@ -253,7 +254,7 @@ class Supervisor(Node):
             self.mission = None
             self.get_logger().info('Flight script stopped!')
     
-    def add_directory_to_sys_path(directory):
+    def add_directory_to_sys_path(self, directory):
         try:
             if directory not in sys.path:
                 sys.path.append(directory)
