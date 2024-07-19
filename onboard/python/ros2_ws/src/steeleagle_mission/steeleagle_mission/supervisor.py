@@ -18,7 +18,6 @@ from std_msgs.msg import String
 import argparse
 from gabriel_protocol import gabriel_pb2
 from gabriel_client.websocket_client import ProducerWrapper, WebsocketClient
-
 import importlib.util
 
 class Supervisor(Node):
