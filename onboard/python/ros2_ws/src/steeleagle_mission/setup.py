@@ -51,7 +51,8 @@ setup(
     entry_points={
         'console_scripts': [
             'hypervisor = steeleagle_mission.hypervisor:main',
-            'supervisor = steeleagle_mission.supervisor:main'
+            'supervisor = steeleagle_mission.supervisor:main',
+            'control_plane = steeleagle_mission.control_plane_ros:main'
         ],
     },
 )
