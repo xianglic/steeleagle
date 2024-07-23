@@ -32,3 +32,7 @@ onboard/python/task_defs/
 onboard/python/transition_defs/
 onboard/python/mission/
 onboard/python/requirements.txt
+onboard/python/ros2_ws/build/
+onboard/python/ros2_ws/install/
+onboard/python/ros2_ws/log/
+onboard/python/ros2_ws/download/
