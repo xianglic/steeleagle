@@ -30,32 +30,37 @@ class ControlPlane(Node):
     def __init__(self, drones):
         super().__init__('control_plane')
         self.drones = drones
-        self.publisher = self.create_publisher(String, 'drone_requests', 10)
+        self.publisher = self.create_publisher(String, 'manual_control', 10)
         self.get_logger().info("Control Plane Node initialized")
 
     def publish_request(self, drone_id, request):
         self.get_logger().info(f'Publishing request for drone: {drone_id}')
-        self.publisher.publish(String(data=request))
+        msg = String()
+        msg.data = request
+        self.publisher.publish(msg)
+        self.get_logger().info(f'Message published: {msg.data}')
 
 def listen_cmdrs(sock, drones, redis, control_plane):
     while rclpy.ok():
+        rclpy.spin_once(control_plane, timeout_sec=0)
         try:
             msg = sock.recv()  # Blocking call, waits for a message
             extras = cnc_pb2.Extras()
             extras.ParseFromString(msg)
-            logger.info(f'Request received:\n{text_format.MessageToString(extras)}')
-            drones[extras.cmd.for_drone_id] = extras.SerializeToString()
+            request = text_format.MessageToString(extras)
+            logger.info(f'Request received:\n{request}')
+            drones[extras.cmd.for_drone_id] = request
             sock.send(b'ACK')
             # key = redis.xadd(
             #     f"commands",
             #     {"commander": extras.commander_id, "drone": extras.cmd.for_drone_id, "value": text_format.MessageToString(extras),}
             # )
             # logger.debug(f"Updated redis under stream commands at key {key}")
-            control_plane.publish_request(extras.cmd.for_drone_id, drones[extras.cmd.for_drone_id])
+            control_plane.publish_request(extras.cmd.for_drone_id, request)
         except DecodeError:
             sock.send(b'Error decoding protobuf. Did you send a cnc_pb2?')
 
-        rclpy.spin_once(control_plane, timeout_sec=0.1)
+        
 
 def main():
     parser = argparse.ArgumentParser()

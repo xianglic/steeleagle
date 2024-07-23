@@ -26,12 +26,19 @@ class Supervisor(Node):
         # ros
         super().__init__('supervisor')
         self.get_logger().info("Initializing Supervisor Node...")
-        self.subscription = self.create_subscription(
+        self.subscription_1 = self.create_subscription(
             String,
             'topic',
             self.listener_callback,
             10)
-        self.subscription  # prevent unused variable warning
+        
+        self.subscription_2 = self.create_subscription(
+            String,
+            'manual_control',
+            self.commandHanderROS,
+            10)
+        
+        # self.subscription  # prevent unused variable warning
         
         # Import the files corresponding to the selected drone/cloudlet
         drone_import = f"implementation.drones.{args.drone}"
@@ -84,7 +91,10 @@ class Supervisor(Node):
     ROS CONTROL
     '''        
     def listener_callback(self, msg):
-        self.get_logger().info('I heard: "%s"' % msg.data)
+        self.get_logger().info('Hypervisor Control: "%s"' % msg.data)
+        
+    def commandHanderROS(self, msg):
+        self.get_logger().info('Manual Control: "%s"' % msg.data)
                 
     '''
     DRONE CONTROL
